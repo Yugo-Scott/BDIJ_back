@@ -13,7 +13,7 @@ class GuideController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum')->except(['index']);
+        $this->middleware('auth:sanctum')->except(['index', 'showPublic']);
     }
     
     /**
@@ -26,23 +26,28 @@ class GuideController extends Controller
         return GuideResource::collection($guides);
     }
 
+    public function showPublic(User $guide)
+    {
+        // user_type = guide & get loged in guides's data
+        if(!$guide->isGuide()) {
+            return response()->json(['error' => 'You are not a guide'], 403);
+        }
+
+        return new GuideResource($guide);
+    }
+
     /**
      * Display the specified resource.
      */
 
-    public function show(User $guide)
+    public function showPrivate(User $guide)
     {
-        if (!$guide->isGuide()) {
-            return response()->json(['error' => 'Not a guide'], 403);
+        // user_type = guide & load logged in guide's reviews and bookings
+        if(!$guide->isGuide()) {
+            return response()->json(['error' => 'You are not a guide'], 403);
         }
 
-        if (Auth::check()) {
-            
-            // Log::debug(Auth::user());
-            $guide->load(['bookingsAsGuide' => function ($query) {
-                $query->where('guest_id', Auth::id());
-            }]);
-        }
+        $guide->load(['reviews', 'bookings']);
 
         return new GuideResource($guide);
     }

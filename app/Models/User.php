@@ -63,6 +63,16 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'reviewer_id');
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'guest_id');
+    }
+
     public function bookingsAsGuest()
     {
         return $this->hasMany(Booking::class, 'guest_id');

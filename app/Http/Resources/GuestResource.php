@@ -22,7 +22,7 @@ class GuestResource extends JsonResource
             'first_name' => (string) $this->first_name,
             'last_name' => (string) $this->last_name,
             'email' => (string) $this->email,
-            // 'reviews' => ReviewResource::collection($this->whenLoaded('reviewer')),
+            'reviews' => ReviewResource::collection($this->whenLoaded('reviews')),
             'bookings' => BookingResource::collection($this->whenLoaded('bookingsAsGuest')),
         ];
     }

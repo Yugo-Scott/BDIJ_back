@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\GuideController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ReviewController;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -23,9 +24,17 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Guide Routes guide resource only index, show, update
-Route::apiResource('guide', GuideController::class)->only(['index', 'show', 'update']);
 
-Route::apiResource('guest', GuestController::class)->only(['show']);
+Route::get('/api/guides/{guide}/private', [GuideController::class, 'showPrivate']);
+
+Route::get('/api/guide/{guide}', [GuideController::class, 'showPublic']);
+
+Route::apiResource('guide', GuideController::class)->only(['index', 'update']);
+
+Route::get('/api/guests/{guest}/private', [GuestController::class, 'showPrivate']);
+
+Route::get('/api/guests/{guest}', [GuestController::class, 'showPublic']);
+
 
 Route::post('/bookings/{guide}/reserve', [BookingController::class, 'reserve'])
     ->name('bookings.reserve');

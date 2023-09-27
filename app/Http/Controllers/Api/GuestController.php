@@ -12,27 +12,37 @@ use Illuminate\Support\Facades\Log;
 class GuestController extends Controller
 {
      public function __construct(){
-        $this->middleware('auth:sanctum')->except(['index']);
+        $this->middleware('auth:sanctum')->except(['index', 'showPublic']);
      }
 
     /**
      * Display the specified resource.
      */
-    public function show(User $guest)
+    public function showPublic(User $guest)
     {
-        if (!$guest->isGuest()) {
-            return response()->json(['error' => 'Not a guest'], 403);
-        }
-
-        if (Auth::check()) {
-            Log::debug(Auth::user());
-            $guest->load(['bookingsAsGuest' => function ($query) {
-                $query->where('guest_id', Auth::id());
-            }]);
+        // user_type = guest & get loged in guest's data
+        if(!$guest->isGuest()) {
+            return response()->json(['error' => 'You are not a guest'], 403);
         }
 
         return new GuestResource($guest);
     }
+
+    /**
+     * Display the specified resource.
+     */
+    public function showPrivate(User $guest)
+    {
+        // user_type = guest & load logged in guest's reviews and bookings
+        if(!$guest->isGuest()) {
+            return response()->json(['error' => 'You are not a guest'], 403);
+        }
+
+        $guest->load(['reviews', 'bookings']);
+
+        return new GuestResource($guest);
+    }
+
 
     /**
      * Update the specified resource in storage.
