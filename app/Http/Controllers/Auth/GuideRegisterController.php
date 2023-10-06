@@ -14,6 +14,7 @@ class GuideRegisterController extends Controller
      */
     public function __invoke(RegisterRequest $request)
     {
+    try{        
         $data = $request->getData();
 
         if ($request->hasFile('profile_image')) {
@@ -31,5 +32,11 @@ class GuideRegisterController extends Controller
             'data' => $user,
             'message' => 'Registration successful',
         ]);
-    }
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Registration failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }   
 }

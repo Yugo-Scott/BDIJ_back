@@ -17,20 +17,30 @@ class UserLoginController extends Controller
     public function __invoke(LoginRequest $request)
     {
         $user = User::where('email', $request->email)->first();
-        if (!auth()->attempt($request->only(['email', 'password']))) {
-            throw ValidationException::withMessages([
-                'email' => ['The credentials you entered are incorrect.']
-            ]);
+        if (!$user || !auth()->attempt($request->only(['email', 'password']))) {
+            return response()->json([
+                'status' => 401,
+                'message' => 'The credentials you entered are incorrect.'
+            ], 401);
+        } else {
+            $token = $user->createToken('user_token')->plainTextToken;
+            return response()->json([
+                'status' => 200,
+                'data' => $user,
+                'token' => $token,
+                'message' => 'Login successful'
+            ])->withCookie(cookie('token', $token, 60, null, null, false, true));
         }
-        $user = Auth::guard('web')->user();
 
-        $token = $user->createToken('user_token')->plainTextToken;
+        // $user = Auth::guard('web')->user();
 
-        return response()->json([
-            'data' => $user,
-            'token' => $token, //postman authorizationに入れるために追加、productionでは不要
-            'message' => 'Login successful'
-        ])->withCookie(cookie('token', $token, 60, null, null, false, true)); // httpOnlyをtrueに設定
+        // $token = $user->createToken('user_token')->plainTextToken;
+
+        // return response()->json([
+        //     'data' => $user,
+        //     'token' => $token, //postman authorizationに入れるために追加、productionでは不要
+        //     'message' => 'Login successful'
+        // ])->withCookie(cookie('token', $token, 60, null, null, false, true)); // httpOnlyをtrueに設定
     }
 }
 
